@@ -1,15 +1,14 @@
 {
   "start_state": "q0",
   "final_states": [
-    "q1",
-    "q2"
+    "q1"
   ],
   "language_alphabet": [
-    "A",
-    "B"
+    "0",
+    "1"
   ],
   "transitions": {
-    "q0,A": "q1,B,>",
-    "q1,B": "q2,A,<"
+    "q0,1": "q0,0,>",
+    "q0,0": "q1,_,<"
   }
 }
