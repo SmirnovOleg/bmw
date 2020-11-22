@@ -8,6 +8,11 @@
     "*",
     "="
   ],
+  "blank": "_",
+  "directions": {
+    "left": "<",
+    "right": ">"
+  },
   "transitions": {
     "q0,1": "q1,v,>",
     "q1,1": "q1,1,>",
