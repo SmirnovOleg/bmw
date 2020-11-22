@@ -10,3 +10,4 @@ if __name__ == '__main__':
     assert grammar.accepts('111*1=111') is True
     assert grammar.accepts('1*11=1') is False
     assert grammar.accepts('=241*') is False
+    grammar.export(Path('./grammar.txt'))

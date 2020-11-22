@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Set, List, Union
 
 Variable = str
@@ -26,3 +27,13 @@ class Grammar:
 
     def __repr__(self):
         return '\n'.join([str(prod) for prod in self.productions])
+
+    def export(self, filename: Path):
+        with open(filename, 'w') as file:
+            var_to_name = {var: f'V{counter}' for counter, var in enumerate(self.variables) if var.startswith('[')}
+            var_to_name[self.start_variable] = 'S'
+            for prod in self.productions:
+                head = ' '.join([(elem if elem not in var_to_name else var_to_name[elem]) for elem in prod.head])
+                body = ' '.join([(elem if elem not in var_to_name else var_to_name[elem]) for elem in prod.body])
+                file.write(f'{head} -> {body}\n')
+
