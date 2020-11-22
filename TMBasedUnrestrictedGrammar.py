@@ -7,7 +7,7 @@ from TuringMachine import Symbol, Direction, TuringMachine
 
 
 class TMBasedUnrestrictedGrammar(Grammar):
-    BLANKS_AT_THE_END_LIMIT = 100
+    BLANKS_AT_THE_END_LIMIT = 2
 
     def __init__(self, tm: TuringMachine):
         productions = set()
@@ -51,9 +51,10 @@ class TMBasedUnrestrictedGrammar(Grammar):
         )
 
     def accepts(self, word: str) -> bool:
-        # Scale up the amount of "[EPS,BLANK]" at the end of a virtual "tape" exponentially
+        # Scale up the amount of "[EPS,BLANK]" at the end and the beginning of the tape exponentially
         for blanks_amount in [2 ** p for p in range(int(log2(self.BLANKS_AT_THE_END_LIMIT)))]:
-            sentences = deque([['q0']
+            sentences = deque([[f'[{Symbol.EPS},{Symbol.BLANK}]'] * blanks_amount
+                               + ['q0']
                                + [f'[{x},{x}]' for x in word]
                                + [f'[{Symbol.EPS},{Symbol.BLANK}]'] * blanks_amount])
 
@@ -68,9 +69,8 @@ class TMBasedUnrestrictedGrammar(Grammar):
             while len(sentences) > 0:
                 sent = sentences.popleft()
 
-                # If current sentence consist of only terminals or epsilons, check for the given word
-                if (all([x in self._tm.language_alphabet or x == Symbol.EPS for x in sent])
-                        and ''.join([x for x in sent if x != Symbol.EPS]) == word):
+                # Optimization: if there is already a final state on the tape, accept it without producing all terminals
+                if any([x in self._tm.final_states for x in sent]):
                     return True
 
                 if tuple(sent) in visited_sentences:
