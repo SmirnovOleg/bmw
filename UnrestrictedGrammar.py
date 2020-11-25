@@ -58,7 +58,7 @@ class UnrestrictedGrammar(TMBasedGrammar):
     def accepts(self, word: str) -> bool:
         word_on_tape = (
                 [f'[{Symbol.EPS},{self.blank}]']
-                + ['q0']
+                + [self.start_state]
                 + [f'[{x},{x}]' for x in word]
                 + [f'[{Symbol.EPS},{self.blank}]']
         )

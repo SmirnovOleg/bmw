@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Set, List, Union
 
-from TuringMachine import Symbol
+from TuringMachine import Symbol, State
 
 Variable = str
 Terminal = str
@@ -30,6 +30,7 @@ class TMBasedGrammar:
     check_productions: Set[Production]
     term_productions: Set[Production]
     start_variable: Variable
+    start_state: State
     blank: Variable = '_'
 
     def __repr__(self):
@@ -41,29 +42,30 @@ class TMBasedGrammar:
         with open(path_to_json) as json_file:
             data = json.load(json_file)
             start_variable = data['start_variable']
-            terminals = data['terminals']
+            start_state = data['start_state']
+            terminals = set(data['terminals'])
             blank = data['blank']
             variables = set()
             gen_prods = set()
             for production in data['gen_productions']:
                 head, body = production.split("->")
-                head, body = head.split(","), body.split(",")
-                variables.union(set(head).union(set(body)))
+                head, body = head.split(";"), body.split(";")
+                variables.update(set(head).union(set(body)))
                 gen_prods.add(Production(head, body))
             check_prods = set()
             for production in data['check_productions']:
                 head, body = production.split("->")
-                head, body = head.split(","), body.split(",")
-                variables.union(set(head).union(set(body)))
+                head, body = head.split(";"), body.split(";")
+                variables.update(set(head).union(set(body)))
                 check_prods.add(Production(head, body))
             term_prods = set()
             for production in data['term_productions']:
                 head, body = production.split("->")
-                head, body = head.split(","), body.split(",")
-                variables.union(set(head).union(set(body)))
+                head, body = head.split(";"), body.split(";")
+                variables.update(set(head).union(set(body)))
                 term_prods.add(Production(head, body))
             variables = variables.difference(terminals)
-            return cls(variables, terminals, gen_prods, check_prods, term_prods, start_variable, blank)
+            return cls(variables, terminals, gen_prods, check_prods, term_prods, start_variable, start_state, blank)
 
     def _accepts(self, word_on_tape: List[Variable]) -> bool:
         sentences = deque([word_on_tape])
