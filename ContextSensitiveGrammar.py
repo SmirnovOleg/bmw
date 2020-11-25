@@ -50,19 +50,19 @@ class ContextSensitiveGrammar(Grammar):
         for (q, x), (p, y, d) in turing_machine.transitions.items():
             for a in terminals:
                 if q in turing_machine.final_states:
-                    # 4.1
+                    # 3.1
                     productions.add(
                         Production(
                             [f'[{q},{BoundSymbol.LEFT},{x},{a},{BoundSymbol.RIGHT}]'],
                             [f'{a}']
                     ))
-                    # 4.2
+                    # 3.2
                     productions.add(
                         Production(
                             [f'[{BoundSymbol.LEFT},{q},{x},{a},{BoundSymbol.RIGHT}]'],
                             [f'{a}']
                     ))
-                    # 4.3
+                    # 3.3
                     productions.add(
                         Production(
                             [f'[{BoundSymbol.LEFT},{x},{a},{q},{BoundSymbol.RIGHT}]'],
@@ -259,10 +259,9 @@ class ContextSensitiveGrammar(Grammar):
         )
 
     def accepts(self, word: str) -> bool:
-        sentences = deque([[f'[{Symbol.EPS},{self.turing_machine.blank}]']
-                           + ['q0']
-                           + [f'[{x},{x}]' for x in word]
-                           + [f'[{Symbol.EPS},{self.turing_machine.blank}]']])
+        sentences = deque([[f'[qS,{BoundSymbol.LEFT},{word[0]},{word[0]}]']
+                           + [f'[{x},{x}]' for x in word[1:-1]]
+                           + [f'[{word[-1]},{word[-1]},{BoundSymbol.RIGHT}]']])
 
         # Leave only "checking" productions
         non_generative_productions = {p for p in self.productions
@@ -272,11 +271,13 @@ class ContextSensitiveGrammar(Grammar):
         # Optimization: do not traverse sentences which were already visited
         visited_sentences = set()
 
+        prods = set()
         while len(sentences) > 0:
             sent = sentences.popleft()
-
+            
             # Optimization: if there is already a final state on the tape, accept it without producing all terminals
-            if any([x in self.turing_machine.final_states for x in sent]):
+            if any([any([f in x for f in self.turing_machine.final_states]) for x in sent]):
+                print(len(prods))
                 return True
 
             if tuple(sent) in visited_sentences:
@@ -289,6 +290,8 @@ class ContextSensitiveGrammar(Grammar):
                     for prod in non_generative_productions:
                         if prod.head == substr:
                             sentences.append(prefix + prod.body + suffix)
+                            prods.add(prod)
             visited_sentences.add(tuple(sent))
+        print(len(prods))
 
         return False
