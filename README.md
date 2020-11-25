@@ -1,2 +1,1 @@
-# bmw
-Arithmetic expressions language checker
+## Arithmetic expressions language checker
