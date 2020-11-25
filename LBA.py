@@ -6,7 +6,7 @@ from TuringMachine import TuringMachine
 
 
 class BoundSymbol:
-    LEFT = '¢'
+    LEFT = '#'
     RIGHT = '$'
 
 @dataclass
