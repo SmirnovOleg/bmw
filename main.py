@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from UnrestrictedGrammar import UnrestrictedGrammar
 from TuringMachine import TuringMachine
+from UnrestrictedGrammar import UnrestrictedGrammar
 
 if __name__ == '__main__':
     tm = TuringMachine.from_json(Path('tm.json'))
-    grammar = UnrestrictedGrammar(tm)
-    assert grammar.accepts('11*11=1111') is True
+    g = UnrestrictedGrammar.from_turing_machine(tm)
+    print(g.accepts('1*11=11'))
