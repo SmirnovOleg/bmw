@@ -2,12 +2,13 @@ import json
 from collections import deque
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Set, List, Union
+from typing import Set, List, Union, Tuple
 
 from TuringMachine import Symbol, State
 
 Variable = str
 Terminal = str
+Sentence = List[str]
 
 
 @dataclass
@@ -67,15 +68,16 @@ class TMBasedGrammar:
             variables = variables.difference(terminals)
             return cls(variables, terminals, gen_prods, check_prods, term_prods, start_variable, start_state, blank)
 
-    def _accepts(self, word_on_tape: List[Variable]) -> bool:
+    def _inference(self, word_on_tape: List[Variable]) -> Tuple[bool, List[Tuple[Sentence, Production]]]:
         sentences = deque([word_on_tape])
         max_head_size = max([len(p.head) for p in self.check_productions])
         visited_sentences = set()
+        derivation = []
 
         while len(sentences) > 0:
             sent = sentences.popleft()
             if all([x in self.terminals.union([Symbol.EPS]) for x in sent]):
-                return True
+                return True, derivation
             if tuple(sent) in visited_sentences:
                 continue
             for substr_size in range(1, max_head_size + 1):
@@ -84,6 +86,7 @@ class TMBasedGrammar:
                     for prod in self.check_productions.union(self.term_productions):
                         if prod.head == substr:
                             sentences.append(prefix + prod.body + suffix)
+                            derivation.append((sent, prod))
             visited_sentences.add(tuple(sent))
 
-        return False
+        return False, derivation

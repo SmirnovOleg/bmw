@@ -1,6 +1,7 @@
 from itertools import product
+from typing import Tuple, List
 
-from TMBasedGrammar import Production, TMBasedGrammar
+from TMBasedGrammar import Production, TMBasedGrammar, Sentence
 from TuringMachine import Symbol, Directions, TuringMachine
 
 
@@ -55,11 +56,20 @@ class UnrestrictedGrammar(TMBasedGrammar):
             blank=turing_machine.blank
         )
 
-    def accepts(self, word: str) -> bool:
+    def inference(self, word: str) -> Tuple[bool, List[Tuple[Sentence, Production]]]:
         word_on_tape = (
                 [f'[{Symbol.EPS},{self.blank}]']
                 + [self.start_state]
                 + [f'[{x},{x}]' for x in word]
                 + [f'[{Symbol.EPS},{self.blank}]']
         )
-        return self._accepts(word_on_tape)
+        derivation = [([self.start_variable], Production(['S1'], ['[eps,_]', 'q0', 'S2']))]
+        current_sent = ['[eps,_]', 'q0', 'S2']
+        for x in word:
+            derivation.append((current_sent, Production(['S2'], [f'[{x},{x}]', 'S2'])))
+            current_sent = current_sent[:-1] + [f'[{x},{x}]', 'S2']
+        derivation.append((current_sent, Production(['S2'], ['[eps,_]'])))
+        ans, tail_derivation = self._inference(word_on_tape)
+        return ans, derivation + tail_derivation
+
+
