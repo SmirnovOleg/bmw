@@ -1,14 +1,18 @@
+from typing import Tuple, List
 from collections import deque
 from itertools import product
 
 from LBA import BoundSymbol
-from TMBasedGrammar import Production, TMBasedGrammar
+from TMBasedGrammar import Production, TMBasedGrammar, Sentence
 from TuringMachine import Directions, TuringMachine
 
 
 class ContextSensitiveGrammar(TMBasedGrammar):
-    def __init__(self, turing_machine: TuringMachine):
-        self.turing_machine = turing_machine
+    def __init__(self, *args, **kwargs):
+        super(ContextSensitiveGrammar, self).__init__(*args, **kwargs)
+
+    @classmethod
+    def from_turing_machine(cls, turing_machine: TuringMachine):
         terminals = turing_machine.language_alphabet.copy()
         terminals.discard(BoundSymbol.LEFT)
         terminals.discard(BoundSymbol.RIGHT)
@@ -49,83 +53,83 @@ class ContextSensitiveGrammar(TMBasedGrammar):
         # not_final_states = turing_machine.states.difference(turing_machine.final_states)
         for (q, x), (p, y, d) in turing_machine.transitions.items():
             for a in terminals:
-                if q in turing_machine.final_states:
-                    # 3.1
-                    productions.add(
-                        Production(
-                            [f'[{q},{BoundSymbol.LEFT},{x},{a},{BoundSymbol.RIGHT}]'],
-                            [f'{a}']
-                        ))
-                    # 3.2
-                    productions.add(
-                        Production(
-                            [f'[{BoundSymbol.LEFT},{q},{x},{a},{BoundSymbol.RIGHT}]'],
-                            [f'{a}']
-                        ))
-                    # 3.3
-                    productions.add(
-                        Production(
-                            [f'[{BoundSymbol.LEFT},{x},{a},{q},{BoundSymbol.RIGHT}]'],
-                            [f'{a}']
-                        ))
-
-                    # 8.1
-                    productions.add(
-                        Production(
-                            [f'[{q},{BoundSymbol.LEFT},{x},{a}]'],
-                            [f'{a}']
-                        ))
-                    # 8.2
-                    productions.add(
-                        Production(
-                            [f'[{BoundSymbol.LEFT},{q},{x},{a}]'],
-                            [f'{a}']
-                        ))
-                    # 8.3
-                    productions.add(
-                        Production(
-                            [f'[{q},{x},{a}]'],
-                            [f'{a}']
-                        ))
-                    # 8.4
-                    productions.add(
-                        Production(
-                            [f'[{q},{x},{a},{BoundSymbol.RIGHT}]'],
-                            [f'{a}']
-                        ))
-                    # 8.5
-                    productions.add(
-                        Production(
-                            [f'[{x},{a},{q},{BoundSymbol.RIGHT}]'],
-                            [f'{a}']
-                        ))
-
-                    for b in terminals:
-                        # 9.1
+                if p in turing_machine.final_states:
+                    for c in tape_symbols:
+                        # 3.1
                         productions.add(
                             Production(
-                                [f'{a}', f'[{x},{b}]'],
-                                [f'{a}', f'{b}']
+                                [f'[{p},{BoundSymbol.LEFT},{c},{a},{BoundSymbol.RIGHT}]'],
+                                [f'{a}']
                             ))
-                        # 9.2
+                        # 3.2
                         productions.add(
                             Production(
-                                [f'{a}', f'[{x},{b},{BoundSymbol.RIGHT}]'],
-                                [f'{a}', f'{b}']
+                                [f'[{BoundSymbol.LEFT},{p},{c},{a},{BoundSymbol.RIGHT}]'],
+                                [f'{a}']
                             ))
-                        # 9.3
+                        # 3.3
                         productions.add(
                             Production(
-                                [f'[{x},{a}]', f'{b}'],
-                                [f'{a}', f'{b}']
-                            ))
-                        # 9.4
-                        productions.add(
-                            Production(
-                                [f'[{BoundSymbol.LEFT},{x},{a}]', f'{b}'],
-                                [f'{a}', f'{b}']
+                                [f'[{BoundSymbol.LEFT},{c},{a},{p},{BoundSymbol.RIGHT}]'],
+                                [f'{a}']
                             ))
 
+                        # 8.1
+                        productions.add(
+                            Production(
+                                [f'[{p},{BoundSymbol.LEFT},{c},{a}]'],
+                                [f'{a}']
+                            ))
+                        # 8.2
+                        productions.add(
+                            Production(
+                                [f'[{BoundSymbol.LEFT},{p},{c},{a}]'],
+                                [f'{a}']
+                            ))
+                        # 8.3
+                        productions.add(
+                            Production(
+                                [f'[{p},{c},{a}]'],
+                                [f'{a}']
+                            ))
+                        # 8.4
+                        productions.add(
+                            Production(
+                                [f'[{p},{c},{a},{BoundSymbol.RIGHT}]'],
+                                [f'{a}']
+                            ))
+                        # 8.5
+                        productions.add(
+                            Production(
+                                [f'[{c},{a},{p},{BoundSymbol.RIGHT}]'],
+                                [f'{a}']
+                            ))
+
+                        for b in terminals:
+                            # 9.1
+                            productions.add(
+                                Production(
+                                    [f'{a}', f'[{c},{b}]'],
+                                    [f'{a}', f'{b}']
+                                ))
+                            # 9.2
+                            productions.add(
+                                Production(
+                                    [f'{a}', f'[{c},{b},{BoundSymbol.RIGHT}]'],
+                                    [f'{a}', f'{b}']
+                                ))
+                            # 9.3
+                            productions.add(
+                                Production(
+                                    [f'[{c},{a}]', f'{b}'],
+                                    [f'{a}', f'{b}']
+                                ))
+                            # 9.4
+                            productions.add(
+                                Production(
+                                    [f'[{BoundSymbol.LEFT},{c},{a}]', f'{b}'],
+                                    [f'{a}', f'{b}']
+                                ))
                 if x == BoundSymbol.LEFT:
                     if d == Directions.RIGHT:
                         for X in tape_symbols:
@@ -141,7 +145,7 @@ class ContextSensitiveGrammar(TMBasedGrammar):
                                     [f'[{q},{BoundSymbol.LEFT},{X},{a}]'],
                                     [f'[{BoundSymbol.LEFT},{p},{X},{a}]']
                                 ))
-                if x == BoundSymbol.RIGHT:
+                elif x == BoundSymbol.RIGHT:
                     if d == Directions.LEFT:
                         for X in tape_symbols:
                             # 2.4
@@ -235,70 +239,64 @@ class ContextSensitiveGrammar(TMBasedGrammar):
             set(f'[{BoundSymbol.LEFT},{ts},{term},{q},{BoundSymbol.RIGHT}]' for q, term, ts in
                 product(turing_machine.states, terminals, tape_symbols))
         )
-        new_variables.union(
+        new_variables = new_variables.union(
             set(f'[{q},{ts},{term}]' for q, term, ts in product(turing_machine.states, terminals, tape_symbols))
         )
-        new_variables.union(
-            set(f'[{q},{ts},{term},{BoundSymbol.RIGHT}]' for q, term, ts in
-                product(turing_machine.states, terminals, tape_symbols))
+        new_variables = new_variables.union(
+            set(f'[{q},{ts},{term},{BoundSymbol.RIGHT}]' for q, term, ts in product(turing_machine.states, terminals, tape_symbols))
         )
-        new_variables.union(
-            set(f'[{ts},{term},{q},{BoundSymbol.RIGHT}]' for q, term, ts in
-                product(turing_machine.states, terminals, tape_symbols))
+        new_variables = new_variables.union(
+            set(f'[{ts},{term},{q},{BoundSymbol.RIGHT}]' for q, term, ts in product(turing_machine.states, terminals, tape_symbols))
         )
-        new_variables.union(
-            set(f'[{BoundSymbol.LEFT},{ts},{term}]' for q, term, ts in
-                product(turing_machine.states, terminals, tape_symbols))
+        new_variables = new_variables.union(
+            set(f'[{BoundSymbol.LEFT},{ts},{term}]' for q, term, ts in product(turing_machine.states, terminals, tape_symbols))
         )
-        new_variables.union(
+        new_variables = new_variables.union(
             set(f'[{ts},{term}]' for q, term, ts in product(turing_machine.states, terminals, tape_symbols))
         )
-        new_variables.union(
-            set(f'[{ts},{term},{BoundSymbol.RIGHT}]' for q, term, ts in
-                product(turing_machine.states, terminals, tape_symbols))
+        new_variables = new_variables.union(
+            set(f'[{ts},{term},{BoundSymbol.RIGHT}]' for q, term, ts in product(turing_machine.states, terminals, tape_symbols))
+        )
+        new_variables = new_variables.union(
+            set(f'[{BoundSymbol.LEFT},{q},{ts},{term}]' for q, term, ts in product(turing_machine.states, terminals, tape_symbols))
+        )
+        new_variables = new_variables.union(
+            set(f'[{q},{BoundSymbol.LEFT},{ts},{term}]' for q, term, ts in product(turing_machine.states, terminals, tape_symbols))
         )
 
-        super().__init__(
+        gen_prods = set()
+        check_prods = set()
+        term_prods = set()
+        for prod in productions:
+            if prod.head[0].startswith('A'):
+                gen_prods.add(prod)
+            elif not prod.body[0].startswith('['):
+                term_prods.add(prod)
+            else:
+                check_prods.add(prod)
+
+        return cls(
             variables=new_variables.union({'A1', 'A2'}),
             terminals=turing_machine.language_alphabet,
-            productions=productions,
-            start_variable='A1'
+            gen_productions=gen_prods,
+            check_productions=check_prods,
+            term_productions=term_prods,
+            start_variable='A1',
+            start_state=turing_machine.start_state,
+            blank=turing_machine.blank
         )
 
-    def accepts(self, word: str) -> bool:
-        sentences = deque([[f'[qS,{BoundSymbol.LEFT},{word[0]},{word[0]}]']
-                           + [f'[{x},{x}]' for x in word[1:-1]]
-                           + [f'[{word[-1]},{word[-1]},{BoundSymbol.RIGHT}]']])
-
-        # Leave only "checking" productions
-        non_generative_productions = {p for p in self.productions
-                                      if p.head != ['A1'] and p.head != ['A2'] and p.head != ['A3']}
-        max_head_size = max([len(p.head) for p in non_generative_productions])
-
-        # Optimization: do not traverse sentences which were already visited
-        visited_sentences = set()
-
-        prods = set()
-        while len(sentences) > 0:
-            sent = sentences.popleft()
-
-            # Optimization: if there is already a final state on the tape, accept it without producing all terminals
-            if any([any([f in x for f in self.turing_machine.final_states]) for x in sent]):
-                print(len(prods))
-                return True
-
-            if tuple(sent) in visited_sentences:
-                continue
-
-            # Extending sentences
-            for substr_size in range(1, max_head_size + 1):
-                for pos in range(len(sent) - substr_size + 1):
-                    prefix, substr, suffix = sent[:pos], sent[pos:pos + substr_size], sent[pos + substr_size:]
-                    for prod in non_generative_productions:
-                        if prod.head == substr:
-                            sentences.append(prefix + prod.body + suffix)
-                            prods.add(prod)
-            visited_sentences.add(tuple(sent))
-        print(len(prods))
-
-        return False
+    def inference(self, word: str) -> Tuple[bool, List[Tuple[Sentence, Production]]]:
+        word_on_tape = (
+            [f'[{self.start_state},{BoundSymbol.LEFT},{word[0]},{word[0]}]']
+            + [f'[{x},{x}]' for x in word[1:-1]]
+            + [f'[{word[-1]},{word[-1]},{BoundSymbol.RIGHT}]']
+        )
+        derivation = [([self.start_variable], Production(['A1'], [f'[qS,{BoundSymbol.LEFT},1,1]','A2']))]
+        current_sent = [f'[qS,{BoundSymbol.LEFT},1,1]','A2']
+        for x in word[:-1]:
+            derivation.append((current_sent, Production(['A2'], [f'[{x},{x}]', 'A2'])))
+            current_sent = current_sent[:-1] + [f'[{x},{x}]', 'A2']
+        derivation.append((current_sent, Production(['A2'], [f'[1,1,{BoundSymbol.RIGHT}]'])))
+        ans, tail_derivation = self._inference(word_on_tape)
+        return ans, derivation + tail_derivation
