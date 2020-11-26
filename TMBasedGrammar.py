@@ -20,7 +20,7 @@ class Production:
         return hash(tuple(self.head)) * 31 + hash(tuple(self.body))
 
     def __repr__(self):
-        return f'{",".join(self.head)}->{",".join(self.body)}'
+        return f'{";".join(self.head)}->{";".join(self.body)}'
 
 
 @dataclass

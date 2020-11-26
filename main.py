@@ -4,7 +4,7 @@ from UnrestrictedGrammar import UnrestrictedGrammar
 
 if __name__ == '__main__':
     g = UnrestrictedGrammar.from_json(Path('./t0.json'))
-    word = '1*1=1'
+    word = '111*111=111111111'
     ans, derivation = g.inference(word)
     if ans:
         for sent, prod in derivation:
