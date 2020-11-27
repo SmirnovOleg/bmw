@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Set, List, Union, Tuple
 
-from TuringMachine import Symbol, State
+from machines.TuringMachine import Symbol, State
 
 Variable = str
 Terminal = str
@@ -93,8 +93,6 @@ class TMBasedGrammar:
 
     def export(self, filename: Path):
         with open(filename, 'w') as file:
-            # var_to_name = {var: f'V{counter}' for counter, var in enumerate(self.variables) if var.startswith('[')}
-            # var_to_name[self.start_variable] = 'S'
             with open('gen_prods.txt', 'w') as f:
                 for prod in self.gen_productions:
                     head = ';'.join([elem for elem in prod.head])
@@ -113,8 +111,8 @@ class TMBasedGrammar:
                     f.write(f"\"{head}->{body}\",\n")
 
     def export_to_json(self, filename: Path):
-        pass
-        ### WIP
+        # WIP
+        #
         # with open(filename, 'w') as file:
         #     file.write('{\n')
         #     tabs_amount = 1
@@ -126,3 +124,4 @@ class TMBasedGrammar:
         #         head = ' '.join([(elem if elem not in var_to_name else var_to_name[elem]) for elem in prod.head])
         #         body = ' '.join([(elem if elem not in var_to_name else var_to_name[elem]) for elem in prod.body])
         #         file.write(f'{head} -> {body}\n')
+        pass

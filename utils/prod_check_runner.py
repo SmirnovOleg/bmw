@@ -1,7 +1,9 @@
-from ContextSensitiveGrammar import ContextSensitiveGrammar
-from LBA import LBA, BoundSymbol
+from pathlib import Path
 
-lba = LBA.from_json('lba.json')
+from grammars.ContextSensitiveGrammar import ContextSensitiveGrammar
+from machines.LBA import LBA
+
+lba = LBA.from_json(Path('../resources/lba.json'))
 
 csg = ContextSensitiveGrammar.from_turing_machine(lba)
 csg.export('t1.txt')

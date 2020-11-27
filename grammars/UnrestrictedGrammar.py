@@ -1,8 +1,8 @@
 from itertools import product
 from typing import Tuple, List
 
-from TMBasedGrammar import Production, TMBasedGrammar, Sentence
-from TuringMachine import Symbol, Directions, TuringMachine
+from grammars.TMBasedGrammar import Production, TMBasedGrammar, Sentence
+from machines.TuringMachine import Symbol, Directions, TuringMachine
 
 
 class UnrestrictedGrammar(TMBasedGrammar):
