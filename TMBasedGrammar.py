@@ -90,3 +90,39 @@ class TMBasedGrammar:
             visited_sentences.add(tuple(sent))
 
         return False, derivation
+
+    def export(self, filename: Path):
+        with open(filename, 'w') as file:
+            # var_to_name = {var: f'V{counter}' for counter, var in enumerate(self.variables) if var.startswith('[')}
+            # var_to_name[self.start_variable] = 'S'
+            with open('gen_prods.txt', 'w') as f:
+                for prod in self.gen_productions:
+                    head = ';'.join([elem for elem in prod.head])
+                    body = ''.join([elem for elem in prod.body])
+                    f.write(f"\"{head}->{body}\",\n")
+
+            for prod in self.check_productions:
+                head = ';'.join([elem for elem in prod.head])
+                body = ';'.join([elem for elem in prod.body])
+                file.write(f"\"{head}->{body}\",\n")
+            
+            with open('term_prods.txt', 'w') as f:
+                for prod in self.term_productions:
+                    head = ';'.join([elem for elem in prod.head])
+                    body = ''.join([elem for elem in prod.body])
+                    f.write(f"\"{head}->{body}\",\n")
+
+    def export_to_json(self, filename: Path):
+        pass
+        ### WIP
+        # with open(filename, 'w') as file:
+        #     file.write('{\n')
+        #     tabs_amount = 1
+        #     file.write(tabs_amount * '  ' + '"start_variable": "A1",\n')
+        #     file.write(tabs_amount * '  ' + '"final_state": "S",\n')
+        #     var_to_name = {var: f'V{counter}' for counter, var in enumerate(self.variables) if var.startswith('[')}
+        #     var_to_name[self.start_variable] = 'S'
+        #     for prod in self.productions:
+        #         head = ' '.join([(elem if elem not in var_to_name else var_to_name[elem]) for elem in prod.head])
+        #         body = ' '.join([(elem if elem not in var_to_name else var_to_name[elem]) for elem in prod.body])
+        #         file.write(f'{head} -> {body}\n')
