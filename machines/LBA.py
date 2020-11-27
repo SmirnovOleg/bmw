@@ -2,7 +2,7 @@ from pathlib import Path
 
 from dataclasses import dataclass
 
-from TuringMachine import TuringMachine
+from machines.TuringMachine import TuringMachine
 
 
 class BoundSymbol:

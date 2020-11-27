@@ -1,10 +1,9 @@
 from typing import Tuple, List
-from collections import deque
 from itertools import product
 
-from LBA import BoundSymbol
-from TMBasedGrammar import Production, TMBasedGrammar, Sentence
-from TuringMachine import Directions, TuringMachine
+from machines.LBA import BoundSymbol
+from grammars.TMBasedGrammar import Production, TMBasedGrammar, Sentence
+from machines.TuringMachine import Directions, TuringMachine
 
 
 class ContextSensitiveGrammar(TMBasedGrammar):
@@ -243,25 +242,31 @@ class ContextSensitiveGrammar(TMBasedGrammar):
             set(f'[{q},{ts},{term}]' for q, term, ts in product(turing_machine.states, terminals, tape_symbols))
         )
         new_variables = new_variables.union(
-            set(f'[{q},{ts},{term},{BoundSymbol.RIGHT}]' for q, term, ts in product(turing_machine.states, terminals, tape_symbols))
+            set(f'[{q},{ts},{term},{BoundSymbol.RIGHT}]' for q, term, ts in
+                product(turing_machine.states, terminals, tape_symbols))
         )
         new_variables = new_variables.union(
-            set(f'[{ts},{term},{q},{BoundSymbol.RIGHT}]' for q, term, ts in product(turing_machine.states, terminals, tape_symbols))
+            set(f'[{ts},{term},{q},{BoundSymbol.RIGHT}]' for q, term, ts in
+                product(turing_machine.states, terminals, tape_symbols))
         )
         new_variables = new_variables.union(
-            set(f'[{BoundSymbol.LEFT},{ts},{term}]' for q, term, ts in product(turing_machine.states, terminals, tape_symbols))
+            set(f'[{BoundSymbol.LEFT},{ts},{term}]' for q, term, ts in
+                product(turing_machine.states, terminals, tape_symbols))
         )
         new_variables = new_variables.union(
             set(f'[{ts},{term}]' for q, term, ts in product(turing_machine.states, terminals, tape_symbols))
         )
         new_variables = new_variables.union(
-            set(f'[{ts},{term},{BoundSymbol.RIGHT}]' for q, term, ts in product(turing_machine.states, terminals, tape_symbols))
+            set(f'[{ts},{term},{BoundSymbol.RIGHT}]' for q, term, ts in
+                product(turing_machine.states, terminals, tape_symbols))
         )
         new_variables = new_variables.union(
-            set(f'[{BoundSymbol.LEFT},{q},{ts},{term}]' for q, term, ts in product(turing_machine.states, terminals, tape_symbols))
+            set(f'[{BoundSymbol.LEFT},{q},{ts},{term}]' for q, term, ts in
+                product(turing_machine.states, terminals, tape_symbols))
         )
         new_variables = new_variables.union(
-            set(f'[{q},{BoundSymbol.LEFT},{ts},{term}]' for q, term, ts in product(turing_machine.states, terminals, tape_symbols))
+            set(f'[{q},{BoundSymbol.LEFT},{ts},{term}]' for q, term, ts in
+                product(turing_machine.states, terminals, tape_symbols))
         )
 
         gen_prods = set()
@@ -288,12 +293,12 @@ class ContextSensitiveGrammar(TMBasedGrammar):
 
     def inference(self, word: str) -> Tuple[bool, List[Tuple[Sentence, Production]]]:
         word_on_tape = (
-            [f'[{self.start_state},{BoundSymbol.LEFT},{word[0]},{word[0]}]']
-            + [f'[{x},{x}]' for x in word[1:-1]]
-            + [f'[{word[-1]},{word[-1]},{BoundSymbol.RIGHT}]']
+                [f'[{self.start_state},{BoundSymbol.LEFT},{word[0]},{word[0]}]']
+                + [f'[{x},{x}]' for x in word[1:-1]]
+                + [f'[{word[-1]},{word[-1]},{BoundSymbol.RIGHT}]']
         )
-        derivation = [([self.start_variable], Production(['A1'], [f'[qS,{BoundSymbol.LEFT},1,1]','A2']))]
-        current_sent = [f'[qS,{BoundSymbol.LEFT},1,1]','A2']
+        derivation = [([self.start_variable], Production(['A1'], [f'[qS,{BoundSymbol.LEFT},1,1]', 'A2']))]
+        current_sent = [f'[qS,{BoundSymbol.LEFT},1,1]', 'A2']
         for x in word[:-1]:
             derivation.append((current_sent, Production(['A2'], [f'[{x},{x}]', 'A2'])))
             current_sent = current_sent[:-1] + [f'[{x},{x}]', 'A2']
