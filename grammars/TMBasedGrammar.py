@@ -91,7 +91,17 @@ class TMBasedGrammar:
 
         return False, derivation
 
-    def export(self, filename: Path):
+    def export_final(self, filename: Path):
+        with open(filename, 'w') as file:
+            var_to_name = {var: f'V{counter}' for counter, var in enumerate(self.variables)}
+            var_to_name[self.start_variable] = 'S'
+            productions = self.gen_productions.union(self.check_productions).union(self.term_productions)
+            for prod in productions:
+                head = ' '.join([var_to_name[elem] if elem in var_to_name else elem for elem in prod.head])
+                body = ' '.join([var_to_name[elem] if elem in var_to_name else elem for elem in prod.body])
+                file.write(f"{head} -> {body}\n")
+
+    def export_to_sep_files(self, filename: Path):
         with open(filename, 'w') as file:
             with open('gen_prods.txt', 'w') as f:
                 for prod in self.gen_productions:
